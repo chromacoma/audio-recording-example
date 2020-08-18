@@ -9,6 +9,7 @@ import { Audio } from 'expo-av';
 import * as FileSystem from 'expo-file-system';
 import * as Font from 'expo-font';
 import * as Permissions from 'expo-permissions';
+import * as Sharing from 'expo-sharing';
 
 class Icon {
   constructor(module, width, height) {
@@ -39,6 +40,31 @@ const LIVE_COLOR = '#FF0000';
 const DISABLED_OPACITY = 0.5;
 const RATE_SCALE = 3.0;
 
+// const recordingSettings = Audio.RECORDING_OPTIONS_PRESET_LOW_QUALITY;
+// const recordingSettings = Audio.RECORDING_OPTIONS_PRESET_HIGH_QUALITY;
+const recordingSettings = {
+  ios: {
+    extension: '.m4a',
+    outputFormat: Audio.RECORDING_OPTION_IOS_OUTPUT_FORMAT_MPEG4AAC,
+    audioQuality: Audio.RECORDING_OPTION_IOS_AUDIO_QUALITY_MAX,
+    sampleRate: 44100,
+    numberOfChannels: 1,
+    bitRateStrategy: Audio.RECORDING_OPTION_IOS_BIT_RATE_STRATEGY_CONSTANT,
+    linearPCMBitDepth: 16,
+    linearPCMIsBigEndian: false,
+    linearPCMIsFloat: false,
+    bitRate: 128000,
+  },
+  android: {
+    extension: '.m4a',
+    outputFormat: Audio.RECORDING_OPTION_ANDROID_OUTPUT_FORMAT_MPEG_4,
+    audioEncoder: Audio.RECORDING_OPTION_ANDROID_AUDIO_ENCODER_AAC,
+    sampleRate: 44100,
+    numberOfChannels: 1,
+    bitRate: 12800,
+  },
+};
+
 export default class App extends React.Component {
   constructor(props) {
     super(props);
@@ -62,7 +88,7 @@ export default class App extends React.Component {
       volume: 1.0,
       rate: 1.0,
     };
-    this.recordingSettings = JSON.parse(JSON.stringify(Audio.RECORDING_OPTIONS_PRESET_LOW_QUALITY));
+    this.recordingSettings = recordingSettings;
     // // UNCOMMENT THIS TO TEST maxFileSize:
     // this.recordingSettings.android['maxFileSize'] = 12000;
   }
@@ -275,6 +301,10 @@ export default class App extends React.Component {
     }
   };
 
+  _onSharePressed = () => {
+    Sharing.shareAsync(this.recording.getURI());
+  };
+
   _getSeekSliderPosition() {
     if (this.sound != null && this.state.soundPosition != null && this.state.soundDuration != null) {
       return this.state.soundPosition / this.state.soundDuration;
@@ -364,6 +394,18 @@ export default class App extends React.Component {
                 <Text style={[styles.recordingTimestamp, { fontFamily: 'cutive-mono-regular' }]}>
                   {this._getRecordingTimestamp()}
                 </Text>
+              </View>
+              <View style={styles.recordingDataRowContainer}>
+                <TouchableHighlight
+                  underlayColor={BACKGROUND_COLOR}
+                  style={styles.wrapper}
+                  onPress={this._onSharePressed}
+                  disabled={this.state.isLoading || this.state.isRecording}
+                >
+                  <Text style={[{ fontFamily: 'cutive-mono-regular' }]}>
+                    {this.state.isPlaybackAllowed ? 'SHARE' : ''}
+                  </Text>
+                </TouchableHighlight>
               </View>
               <View />
             </View>
