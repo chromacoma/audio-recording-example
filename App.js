@@ -61,7 +61,7 @@ const recordingSettings = {
     audioEncoder: Audio.RECORDING_OPTION_ANDROID_AUDIO_ENCODER_AAC,
     sampleRate: 44100,
     numberOfChannels: 1,
-    bitRate: 12800,
+    bitRate: 128000,
   },
 };
 
